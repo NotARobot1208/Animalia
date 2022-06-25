@@ -6,5 +6,6 @@ RUN pip3 install flask flask-login psycopg passlib
 RUN mkdir /app
 COPY . /app
 
+CMD ["/bin/sh", "-c", "bash /app/run.sh"]
 
 
