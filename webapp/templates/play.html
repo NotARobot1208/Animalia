@@ -88,7 +88,7 @@
                 document.querySelector("#inviteLink").parentElement.remove()
                 $("#modal").modal('hide');
                 
-                socket = new WebSocket("wss://simplihacks-ws.ethanho1.repl.co");
+                socket = new WebSocket("wss://{{ ws_url }}");
 
                 socket.onmessage = function(event) {
                     data = JSON.parse(event.data)

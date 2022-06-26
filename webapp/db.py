@@ -3,15 +3,15 @@ import uuid
 import os
 import hashlib
 
-os.system("curl --create-dirs -o $HOME/.postgresql/root.crt -O https://cockroachlabs.cloud/clusters/5bc8af30-66ee-4d52-a8ed-314c69bb9556/cert")
+os.system(os.environ.get("COCKROACH_UPDATE_CMD"))
 
 class User:
     '''
-    An user in the system. Create an user from DB with 
+    An user in the system. Create an user from DB with
     User(id), or create it based on parameters with
-    User(id, username, password, rating). Note that 
+    User(id, username, password, rating). Note that
     creating an user this way does NOT touch the database,
-    but only creates a "virtual" user in memory. Do not 
+    but only creates a "virtual" user in memory. Do not
     make an user this way, this is only for internal use
     inside functions in this file.
 
@@ -53,7 +53,7 @@ class User:
         return "User(" + str(self.__dict__)[1:-1].replace(": ", "=") + ")"
     def update(self):
         '''
-        Any changes in an User must be updated in the database. 
+        Any changes in an User must be updated in the database.
         Otherwise, the changes have no effect. Example:
         u = User(42)
         u.rating += 100
@@ -61,7 +61,7 @@ class User:
         '''
         print("UPDATE users SET username=%s, password=%s, rating=%s, questions=%s, correct_questions=%s WHERE id=%s" % (self.username, self.password, self.rating, self.questions, self.correct_questions, self.id))
         run_query("UPDATE users SET username=%s, password=%s, rating=%s, questions=%s, correct_questions=%s WHERE id=%s", (self.username, self.password, self.rating, self.questions, self.correct_questions, self.id))
-    
+
 
 def init():
     '''
@@ -73,7 +73,7 @@ def init():
 
 def run_query(cmd, args=()):
     '''
-    Wrapper for running SQL commands. Will return a 
+    Wrapper for running SQL commands. Will return a
     value if the query returns a value.
 
     '''

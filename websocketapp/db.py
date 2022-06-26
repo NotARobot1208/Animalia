@@ -3,8 +3,6 @@ import uuid
 import os
 import hashlib
 
-os.system("curl --create-dirs -o $HOME/.postgresql/root.crt -O https://cockroachlabs.cloud/clusters/5bc8af30-66ee-4d52-a8ed-314c69bb9556/cert")
-
 class User:
     '''
     An user in the system. Create an user from DB with 

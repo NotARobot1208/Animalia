@@ -12,14 +12,14 @@ from random import randrange
 from requests import get
 from json import loads
 
-os.system("curl --create-dirs -o $HOME/.postgresql/root.crt -O https://cockroachlabs.cloud/clusters/5bc8af30-66ee-4d52-a8ed-314c69bb9556/cert")
+#os.system(os.environ.get("COCKROACH_UPDATE_CMD"))
 
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = False
-#app.secret_key = os.urandom(16)
-app.secret_key = b"a"*16
+app.secret_key = os.environ.get("SECRET_KEY")
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
+
 species_data = loads(get('https://ecos.fws.gov/ecp/pullreports/catalog/species/report/species/export?format=json&columns=%2Fspecies%40cn%2Csn%2Cstatus%2Cdesc%2Cgn%3B%2Fspecies%2FspeciesImage%40image_url%2Cimage_citation&sort=%2Fspecies%40cn%20asc%3B%2Fspecies%40sn%20asc').text)['data']
 
 class current_user_class(flask_login.UserMixin):
@@ -126,7 +126,7 @@ def play():
     '''
     pure magic
     '''
-    return render_template('play.html')
+    return render_template('play.html', ws_url=os.environ.get("WS_URL"))
 
 @app.route('/profile')
 def profile():
