@@ -129,7 +129,7 @@ def play():
 def profile():
     try:
         usrname = request.args.get('user')
-	all_users = get_all_users()
+        all_users = get_all_users()
         for user in all_users:
             print(user.username)
             if user.username == usrname:
