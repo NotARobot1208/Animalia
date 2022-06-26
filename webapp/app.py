@@ -12,14 +12,11 @@ from random import randrange
 from requests import get
 from json import loads
 
-#os.system(os.environ.get("COCKROACH_UPDATE_CMD"))
-
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.secret_key = os.environ.get("SECRET_KEY")
 login_manager = flask_login.LoginManager()
 login_manager.init_app(app)
-
 species_data = loads(get('https://ecos.fws.gov/ecp/pullreports/catalog/species/report/species/export?format=json&columns=%2Fspecies%40cn%2Csn%2Cstatus%2Cdesc%2Cgn%3B%2Fspecies%2FspeciesImage%40image_url%2Cimage_citation&sort=%2Fspecies%40cn%20asc%3B%2Fspecies%40sn%20asc').text)['data']
 
 class current_user_class(flask_login.UserMixin):
@@ -90,6 +87,8 @@ def register():
     # """
     return redirect(url_for("home"))
 
+
+
 @app.route("/scroll_ep", methods=['GET'])
 def scroll_ep():
     return str(species_data[randrange(0, len(species_data))])
@@ -123,10 +122,8 @@ def leaderboard():
 def play():
     if not flask_login.current_user.is_authenticated:
         return redirect(url_for("home") + "?login=True")
-    '''
-    pure magic
-    '''
-    return render_template('play.html', ws_url=os.environ.get("WS_URL"))
+    
+    return render_template('play.html', x=flask_login.current_user)
 
 @app.route('/profile')
 def profile():
@@ -155,3 +152,4 @@ def unauthorized_handler():
     return 'Unauthorized', 401
 
 app.run('0.0.0.0', 8080)
+

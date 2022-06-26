@@ -10,6 +10,7 @@ COPY . /app
 
 EXPOSE 8080
 EXPOSE 8081
+EXPOSE 8082
 
 CMD ["/bin/sh", "-c", "bash /app/run.sh"]
 
