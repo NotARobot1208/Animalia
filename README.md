@@ -1,5 +1,7 @@
 # Animalia
 
+### Live Link
+https://animaliaga.me/
 ### Raising awareness about the animals around us
 Animalia is a two-player, rapid-paced educational game that teaches facts about various animals. A random question will be selected, and the first to answer correctly gets the point. The person with the most points after 9 questions wins.
 
