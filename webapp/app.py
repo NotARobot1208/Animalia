@@ -12,6 +12,8 @@ from random import randrange
 from requests import get
 from json import loads
 
+os.system(os.environ.get("COCKROACH_SSL_CMD"))
+
 app = Flask(__name__)
 app.config['SESSION_COOKIE_HTTPONLY'] = False
 app.secret_key = os.environ.get("SECRET_KEY")

@@ -1,6 +1,6 @@
 added = 0
 window.onscroll = function() {
-    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 400) {
+    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 100) {
         $.get("/scroll_ep", function(data, _){
             dataP = JSON.parse(data.replaceAll("'", "\""));
             if (dataP[4].toLowerCase().includes('plant')){
@@ -15,7 +15,7 @@ window.onscroll = function() {
                                 <div class="d-flex h-100">
                                     <div class="project-text w-100 my-auto text-center text-lg-left">
                                         <h4 class="text-white"><a href='${dataP[1]['url']}' style='color:white'>${dataP[0]}</a></h4>
-                                        <p class="mb-0 text-white-50" style="padding: 10px">Scientific Name: ${dataP[1]['value']}<br>Status: ${dataP[2]}<br>Listed: ${dataP[3]}<br><br>Image found on <a href='https://ecos.fws.gov' style='color:white'>ecos.fws.gov</a>. Rights to: ${dataP[6]}</p>
+                                        <p class="mb-0 text-white-50" style="padding: 10px">Scientific Name: ${dataP[1]['value']}<br>Status: ${dataP[2]}<br>Listed: ${dataP[3]}<br><br>Image & facts from <a href='https://ecos.fws.gov' style='color:white'>ecos.fws.gov</a>.<br>Image rights to: ${dataP[6]}</p>
                                         <hr class="d-none d-lg-block mb-0 ms-0">
                                     </div>
                                 </div>
@@ -30,7 +30,7 @@ window.onscroll = function() {
                             <div class="d-flex h-100">
                                 <div class="project-text w-100 my-auto text-center text-lg-right">
                                     <h4 class="text-white"><a style='color:white' href='${dataP[1]['url']}'>${dataP[0]}</a></h4>
-                                    <p class="mb-0 text-white-50" style="padding: 10px">Scientific Name: ${dataP[1]['value']}<br>Status: ${dataP[2]}<br>Listed: ${dataP[3]}<br><br>Image found on <a href='https://ecos.fws.gov' style='color:white'>ecos.fws.gov</a>. Rights to: ${dataP[6]}</p>
+                                    <p class="mb-0 text-white-50" style="padding: 10px">Scientific Name: ${dataP[1]['value']}<br>Status: ${dataP[2]}<br>Listed: ${dataP[3]}<br><br>Image & facts from <a href='https://ecos.fws.gov' style='color:white'>ecos.fws.gov</a>. <br>Image rights to: ${dataP[6]}</p>
                                     <hr class="d-none d-lg-block mb-0 me-0">
                                 </div>
                             </div>

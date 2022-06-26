@@ -25,14 +25,21 @@
         <h1>Animalia</h1>
         <h5 id='gameid'>Game ID: LOADING</h5>
         <h5> Invite an opponent: <a id='inviteLink'>LOADING</a> <a style='cursor:pointer' onclick='navigator.clipboard.writeText(document.querySelector("#inviteLink").innerText)'>(copy)</a></h5>
-        <div class='fixed-bottom' style='margin: 10px;margin-bottom:0;background-color:white;width:100%'>
-            <input placeholder="Enter answer here (enter to send)" class='subButton' style='height: 50px !important; font-size: 20px'>
-            <button onclick='sub()' style='width: 60px; height:60px; border-radius: 1000px; border:none; background-color:transparent;'><img src='static/assets/img/send-icon.webp' style="width: 95%;height:95%"></button>
+        <h5><a href='' onclick="$('#modal').modal({backdrop: 'static', keyboard: false});" id='reopen'>Re-open Game Selection</a></h5>
+        <div class='fixed-bottom' style='margin: 10px;margin-bottom:0;background-color:#f0f0f0;width:100%'>
+            <input placeholder="Enter answer here (enter to send)" class='subButton' style='height: 50px !important; font-size: 20px; border-style: solid;'>
+            <button id='sendButton' onclick='sub()' style='width: 60px; height:60px; border-radius: 1000px; border:none; background-color:transparent;'><img src='static/assets/img/send-icon.webp' style="width: 95%;height:95%"></button>
         </div>
 
         <div id='msgs'>
         </div>
 
+        <div id='chat'>
+            <h3>Global Chat</h3>
+            <h5 id='status'>Status: Offline</h5><hr>
+            <div id='chatMsgs'></div>
+            <textarea type='textarea' id='chatInput' placeholder='Type here'></textarea>
+        </div>
 
         <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modallabel" aria-hidden="true">
           <div class="modal-dialog" role="document">
@@ -46,6 +53,9 @@
                 Or Enter Invite Link/Game ID<br>
                 <input type='text' class='form-control' id='idOrLink'> <br>
                 <button class='btn btn-primary' onclick='joinGame(document.querySelector("#idOrLink").value)'>Submit</button>
+                <hr>
+                Or find a game through chat<br>
+                <button style='margin-top: 10px;' onclick="$('#modal').modal('hide');" class='btn btn-primary'>Open Chat</button>
               </div> 
             <div class="modal-footer">
                 <a class="btn btn-secondary" href='/'>Exit</a>
@@ -58,207 +68,9 @@
         <script src='https://code.jquery.com/jquery-3.6.0.min.js'></script>
         <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
-
-        <script>
-            var socket;
-            var sid = ""
-            var code;
-            for(i = 0; i < document.cookie.split(";").length; i++){
-                if ('session' == document.cookie.split(";")[i].split("=")[0])    {
-                    sid = document.cookie.split(";")[i].split("=")[1]
-                    break
-                }
-            }
-            $(document).ready(function(){
-                param = new URLSearchParams(window.location.search);
-                if (param.has('gameid')){
-                    joinGame(param.get("gameid"));
-                    return
-                }
-                $("#modal").modal({backdrop: 'static', keyboard: false});
-            });
-
-            function joinGame(codeOrUrl){
-                gameOver = false;
-                code = codeOrUrl
-                if (codeOrUrl.includes('?gameid=')){
-                    code = codeOrUrl.split("?gameid=")[1].split("&")[0]
-                }
-                document.querySelector("#gameid").innerText = "Game ID: " + code
-                document.querySelector("#inviteLink").parentElement.remove()
-                $("#modal").modal('hide');
-                
-                socket = new WebSocket("wss://{{ ws_url }}");
-
-                socket.onmessage = function(event) {
-                    data = JSON.parse(event.data)
-                    console.log(event.data)
-                    
-                    d = document.createElement('div');
-                    d.classList.add('bubble-opponent')
-                    if (Object.keys(data).includes("scores")){
-                        u1 = Object.keys(data['scores'])[0]
-                        u2 = Object.keys(data['scores'])[1]
-                        d.innerHTML = `<h4>Current Scores</h4><hr><h6>${u1} - ${data['scores'][u1]}</h6><h6>${u2} - ${data['scores'][u2]}</h6>`                        
-                    } else if (Object.keys(data).includes("success") ){
-                        if (data['success']){
-                            if (data['correct']){
-                                d.innerHTML = `<h4>Correct!</h4>`
-                            } else{
-                                d.innerHTML = `<h4>Incorrect!</h4>`
-                            }
-                        } else{
-                            d.innerHTML = `<h4>Error</h4><hr><h6>${data['error']}</h6>`
-                        }
-                    
-                    } else if (Object.keys(data).includes("message") ){
-                        if (data['message'].includes('incorrectly') || data['message'].includes('correctly')){
-                            document.querySelector("input").disabled = false;
-                            document.querySelector("input").focus();
-                        }
-                        d.innerHTML = `<h4>Message</h4><hr><h6>${data['message']}</h6>`
-                    } else if (Object.keys(data).includes("winner") ){
-                        gameOver = true;
-                        u1 = Object.keys(data['ratings'])[0]
-                        u2 = Object.keys(data['ratings'])[1]
-                        d.innerHTML = `<h4>Game Over</h4><hr><h5>Winner: ${data['winner']}<hr><h6>New Ratings:<br>${u1} - ${data['ratings'][u1]}<br>${u2} - ${data['ratings'][u2]}<hr><a href='/'>Return Home</a> or <a href='#' onclick="location.reload()"">Play Again</a>`
-                    } else{
-                        document.querySelector("input").disabled = false;
-                        document.querySelector("input").focus()
-                        
-                        d.innerHTML = `<h4>Question ${data['problem']}</h4><hr><h6>${data['question']}</h6>`
-                        if (data['answer_choices']){
-                            d.innerHTML = d.innerHTML + "<ul>"
-                            for (let choice of data['answer_choices']) {
-                                d.innerHTML = d.innerHTML + `<li>${choice}</li>`
-                            }
-                        }
-                    }
-                    
-                    document.querySelector("#msgs").appendChild(d)
-                    window.scrollTo(0, document.body.scrollHeight);
-                };
-    
-                socket.onopen = function(event){
-                    socket.send(JSON.stringify({'type': 'join', 'sid': sid, 'code': code}))
-                }
-                
-                socket.onclose = function(event) {
-                    if (!gameOver){
-                        d = document.createElement("div");        
-                        d.classList.add('bubble-opponent');
-                        d.appendChild(document.createTextNode("Error. Connection to server lost. "))
-                        d.innerHTML = d.innerHTML + "<a href='/'>Return Home</a>"
-                        
-                        document.querySelector("#msgs").appendChild(d)   
-                    }
-                }
-                document.querySelector("input").disabled = true;
-            }
-            
-            function initGame(){
-                $("#modal").modal('hide');
-                gameOver = false;
-                socket = new WebSocket("wss://simplihacks-ws.ethanho1.repl.co");
-                var r = 0;
-                socket.onmessage = function(event) {
-                    document.querySelector("input").disabled = true;
-                    if (r == 0) {
-                        data = JSON.parse(event.data)
-                        code = data['gameid']
-                        document.querySelector("#gameid").innerText = 'Game ID: ' + data['gameid']
-                        document.querySelector("#inviteLink").innerText = window.location.href + '?gameid=' + data['gameid']
-                        document.querySelector("#inviteLink").href = window.location.href + '?gameid=' + data['gameid']
-                        r = r + 1;
-                        return
-                    }
-                    else if (r == 1) {
-                        document.querySelector("#inviteLink").parentElement.remove();
-                        r = r + 1;
-                    }
-                    data = JSON.parse(event.data)
-                    d = document.createElement('div');
-                    d.classList.add('bubble-opponent');
-                    if (Object.keys(data).includes("success") ){
-                        if (data['success']){
-                            if (data['correct']){
-                                d.innerHTML = `<h4>Correct!</h4>`
-                            } else{
-                                d.innerHTML = `<h4>Incorrect!</h4>`
-                            }
-                        } else{
-                            d.innerHTML = `<h4>Error</h4><hr><h6>${data['error']}</h6>`
-                        }
-                    } else if (Object.keys(data).includes("winner") ){
-                        gameOver = true;
-                        u1 = Object.keys(data['ratings'])[0]
-                        u2 = Object.keys(data['ratings'])[1]
-                        d.innerHTML = `<h4>Game Over</h4><hr><h5>Winner: ${data['winner']}<hr><h6>New Ratings:<br>${u1} - ${data['ratings'][u1]}<br>${u2} - ${data['ratings'][u2]}<hr><a href='/'>Return Home</a> or <a href='/play'>Play Again</a>`
-                    } else if (Object.keys(data).includes('scores')){
-                        u1 = Object.keys(data['scores'])[0]
-                        u2 = Object.keys(data['scores'])[1]
-                        d.innerHTML = `<h4>Current Scores</h4><hr><h6>${u1} - ${data['scores'][u1]}</h6><h6>${u2} - ${data['scores'][u2]}</h6>`
-                    } 
-                    else if (Object.keys(data).includes("message") ){
-                        if (data['message'].includes('incorrectly') || data['message'].includes('correctly')){
-                            document.querySelector("input").disabled = false;
-                            document.querySelector("input").focus();
-                        }
-                        d.innerHTML = `<h4>Message</h4><hr><h6>${data['message']}</h6>`
-                    } 
-                    else {
-                        document.querySelector("input").disabled = false;
-                        document.querySelector("input").focus();
-                        d.innerHTML = `<h4>Question ${data['problem']}</h4><hr><h6>${data['question']}</h6>`
-                        if (data['answer_choices']){
-                            d.innerHTML = d.innerHTML + "<ul>"
-                            for (let choice of data['answer_choices']) {
-                                d.innerHTML = d.innerHTML + `<li>${choice}</li>`
-                            }
-                        }
-                        
-                    }
-                    document.querySelector("#msgs").appendChild(d)
-                    window.scrollTo(0, document.body.scrollHeight);
-                };
-    
-                socket.onopen = function(event){
-                    socket.send(JSON.stringify({'type': 'initiate', 'sid': sid}))
-                }
-                
-                socket.onclose = function(event) {
-                    if (!gameOver){
-                        d = document.createElement("div");        
-                        d.classList.add('bubble-opponent');
-                        d.appendChild(document.createTextNode("Error. Connection to server lost. "))
-                        d.innerHTML = d.innerHTML + "<a href='/'>Return Home</a>"
-                        
-                        document.querySelector("#msgs").appendChild(d)   
-                    }
-                }
-            }
-            function sub(){
-                var inp = document.querySelector("input")
-                if(inp.value == ''){ return }
-                d = document.createElement("div");
-                d.classList.add('bubble-self');
-                d.appendChild(document.createTextNode(inp.value))
-                
-                document.querySelector("#msgs").appendChild(d)
-                window.scrollTo(0, document.body.scrollHeight);
-                document.querySelector("input").disabled = true;
-                socket.send(JSON.stringify({'type': 'answerquestion', 'answer': inp.value, 'code': code, 'sid': sid}));
-                inp.value = '';
-            }
-            
-            
-            document.querySelector('input').addEventListener("keypress", function(event) {
-              if (event.key === "Enter") {
-                event.preventDefault();
-                sub()
-              }
-            });
-        </script>     
+        
+        <script src="/static/js/play.js"></script>
+   
         <div id='bottom'></div>
     </body>
 </html>

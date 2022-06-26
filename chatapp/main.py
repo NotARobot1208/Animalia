@@ -18,8 +18,8 @@ async def chat(websocket):
     async for message in websocket:
         msg = json.loads(message)
         msg_content = msg['msg_content']
-        msg_author = decode_cookie(msg['msg_author_cookie'], 'a'*16)['_user_id']
-        decodedid = msg_author 
+        msg_author = decode_cookie(msg['msg_author_cookie'])['_user_id']
+        decodedid = msg_author
         ids = []
         for i in all_users:
             ids.append(i.id)
@@ -29,7 +29,6 @@ async def chat(websocket):
             for i in all_users:
                 if int(i.id) == int(decodedid):
                     msg_author = i.username
-                
         for i in clients:
             try:
                 await i.send(json.dumps({"msg_author": msg_author, "msg_content": msg_content}))
