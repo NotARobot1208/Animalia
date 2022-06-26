@@ -5,6 +5,7 @@ services:
     ports:
       - 13337:8080
       - 13338:8081
+      - 13339:8082
     cap_drop:
       - all
     cap_add:
