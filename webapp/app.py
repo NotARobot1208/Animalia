@@ -108,13 +108,11 @@ def home():
 
 @app.route("/leaderboard")
 def leaderboard():
-    global all_users, t
     '''
     list all players from highest to lowest rating
     '''
     users = []
-    if time() - t >= 300: # refresh every 5 mins
-        all_users, t = get_all_users(), time()
+    all_users = get_all_users()
     for user in all_users:
         users.append([user.username, int(user.rating)])    
     users.sort(key=lambda x: x[1], reverse=True)
@@ -130,11 +128,8 @@ def play():
 @app.route('/profile')
 def profile():
     try:
-        global all_users, t
         usrname = request.args.get('user')
-        print(usrname)
-        if time() - t >= 300:
-            all_users, t = get_all_users(), time.time()
+	all_users = get_all_users()
         for user in all_users:
             print(user.username)
             if user.username == usrname:
